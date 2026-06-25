@@ -30,7 +30,7 @@ jobs:
       - name: Checkout web application
         uses: actions/checkout@v4
         with:
-          repository: drmikecrypto/aegis-web-application
+          repository: Aegis-Finance/aegis-web-application
           path: web-application
           ref: main
 
@@ -81,11 +81,42 @@ jobs:
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AEGIS_FRONTEND_DIST: ${{ github.workspace }}/web-application/dist
         with:
           projectPath: desktop
           tagName: ${{ github.ref_name }}
-          releaseName: Aegis ${{ github.ref_name }}
+          releaseName: Aegis Sovereign Node ${{ github.ref_name }}
           releaseBody: |
-            Native Aegis installers for this tag.
-            Verify attached checksum files before installing.
+            Pre-built **Aegis** desktop app for Sonic â local RPC, on-device circuits, full dApp UI.
+
+            | Platform | Installer |
+            |----------|-----------|
+            | Windows | `.msi` / `.exe` (NSIS) |
+            | macOS | `.dmg` |
+            | Linux | `.AppImage` / `.deb` |
+
+            Verify `SHA256SUMS.txt` before installing. Source: [aegis-sovereign-node-app](https://github.com/Aegis-Finance/aegis-sovereign-node-app).
           args: ${{ matrix.args }}
+
+  release-checksums:
+    needs: build-tauri
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download release assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p assets
+          gh release download "${{ github.ref_name }}" \
+            --repo "${{ github.repository }}" \
+            --dir assets
+          (cd assets && sha256sum * > ../SHA256SUMS.txt)
+          cat SHA256SUMS.txt
+
+      - name: Attach checksum manifest
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: SHA256SUMS.txt
