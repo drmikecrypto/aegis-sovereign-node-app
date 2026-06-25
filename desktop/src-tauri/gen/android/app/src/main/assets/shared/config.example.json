@@ -1,0 +1,41 @@
+{
+  "rpc": {
+    "listen": "127.0.0.1",
+    "port": 8547,
+    "upstreams": [
+      "http://127.0.0.1:8545",
+      "https://rpc.soniclabs.com",
+      "https://rpc.testnet.soniclabs.com"
+    ],
+    "timeoutMs": 15000
+  },
+  "circuits": {
+    "listen": "127.0.0.1",
+    "port": 8080,
+    "root": "./circuits",
+    "integrity": {
+      "enabled": false,
+      "sha256": {}
+    }
+  },
+  "gateways": {
+    "arweave": [
+      "https://arweave.net",
+      "https://ar-io.net",
+      "https://arweave.live",
+      "https://gateway.arweave.net",
+      "https://arweave.dev",
+      "https://gateway.irys.xyz",
+      "https://arweave-search.goldsky.com",
+      "https://arweave.news",
+      "https://ar-io.dev",
+      "https://arweave.cache.holaplex.com"
+    ],
+    "ipfs": [
+      "https://ipfs.io/ipfs",
+      "https://cloudflare-ipfs.com/ipfs"
+    ]
+  }
+}
+
+
