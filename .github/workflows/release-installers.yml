@@ -5,19 +5,11 @@ on:
     tags:
       - "v*"
   workflow_dispatch:
-    inputs:
-      tag:
-        description: Release tag to build (e.g. v0.3.1)
-        required: true
-        default: v0.3.1
 
 permissions:
   contents: write
 
-env:
-  RELEASE_TAG: ${{ github.event.inputs.tag || github.ref_name }}
-
-jobs: 
+jobs:
   build-tauri:
     strategy:
       fail-fast: false
@@ -92,18 +84,11 @@ jobs:
           AEGIS_FRONTEND_DIST: ${{ github.workspace }}/web-application/dist
         with:
           projectPath: desktop
-          tagName: ${{ env.RELEASE_TAG }}
-          releaseName: Aegis Sovereign Node ${{ env.RELEASE_TAG }}
+          tagName: ${{ github.ref_name }}
+          releaseName: Aegis Sovereign Node ${{ github.ref_name }}
           releaseBody: |
-            Pre-built **Aegis** desktop app for Sonic â local RPC, on-device circuits, full dApp UI.
-
-            | Platform | Installer |
-            |----------|-----------|
-            | Windows | `.msi` / `.exe` (NSIS) |
-            | macOS | `.dmg` |
-            | Linux | `.AppImage` / `.deb` |
-
-            Verify `SHA256SUMS.txt` before installing. Source: [aegis-sovereign-node-app](https://github.com/Aegis-Finance/aegis-sovereign-node-app).
+            Pre-built Aegis desktop app for Sonic - local RPC, on-device circuits, full dApp UI.
+            Verify SHA256SUMS.txt before installing.
           args: ${{ matrix.args }}
 
   release-checksums:
@@ -117,7 +102,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p assets
-          gh release download "${{ env.RELEASE_TAG }}" \
+          gh release download "${{ github.ref_name }}" \
             --repo "${{ github.repository }}" \
             --dir assets
           (cd assets && sha256sum * > ../SHA256SUMS.txt)
@@ -126,5 +111,5 @@ jobs:
       - name: Attach checksum manifest
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ env.RELEASE_TAG }}
+          tag_name: ${{ github.ref_name }}
           files: SHA256SUMS.txt
